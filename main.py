@@ -10,7 +10,7 @@ import estimators
 import matplotlib.pyplot as plt
 import chaospy
 import numpy as np
-from scipy.stats import t
+from scipy.stats import t, sem
 
 
 #### A
@@ -128,7 +128,6 @@ def build_histogram(numbers):
 
 
 def q_1_c(distributions_amount, distributions):
-
     # initialization
     seed = 1  # changes every iteration
     all_estimators = []
@@ -158,30 +157,46 @@ def q_1_c(distributions_amount, distributions):
     # now all_estimators is ready
     return calculate_all_confidence_interval(all_estimators, distributions)
 
+
 def calculate_all_confidence_interval(all_estimators, distributions):
     # revah bae semah
 
-    confidence_intervals = []
+    confidence_intervals_normal = []
+    confidence_intervals_empirical = []
 
     for i in range(0, len(all_estimators)):
-        if distributions[i] == "exp":
+        if distributions[i] == "exp":  # has 1 param
+            # estimators
             cur_estimators = all_estimators[i]
-            cur_confidence_interval = calculate_single_confidence_interval(cur_estimators)
-            confidence_intervals.append(cur_confidence_interval)
-        else:
+
+            # normal
+            cur_confidence_interval_normal = calculate_single_confidence_interval_normal(cur_estimators)
+            confidence_intervals_normal.append(cur_confidence_interval_normal)
+
+            # empirical
+            cur_confidence_interval_empirical = calculate_single_confidence_interval_empirical(cur_estimators)
+            confidence_intervals_empirical.append(cur_confidence_interval_empirical)
+        else:  # has 2 params
+            # estimators
             cur_estimators_param_1 = all_estimators[i][0]
-            cur_confidence_interval_1 = calculate_single_confidence_interval(cur_estimators_param_1)
-
             cur_estimators_param_2 = all_estimators[i][1]
-            cur_confidence_interval_2 = calculate_single_confidence_interval(cur_estimators_param_2)
 
-            confidence_intervals.append((cur_confidence_interval_1, cur_confidence_interval_2))
+            # normal
+            cur_confidence_interval_normal_1 = calculate_single_confidence_interval_normal(cur_estimators_param_1)
+            cur_confidence_interval_normal_2 = calculate_single_confidence_interval_normal(cur_estimators_param_2)
+
+            confidence_intervals_normal.append((cur_confidence_interval_normal_1, cur_confidence_interval_normal_2))
+
+            # empirical
+            cur_confidence_interval_empirical_1 = calculate_single_confidence_interval_empirical(cur_estimators_param_1)
+            cur_confidence_interval_empirical_2 = calculate_single_confidence_interval_empirical(cur_estimators_param_2)
+
+            confidence_intervals_empirical.append((cur_confidence_interval_empirical_1, cur_confidence_interval_empirical_2))
+
+    return confidence_intervals_normal, confidence_intervals_empirical
 
 
-    return confidence_intervals
-
-
-def calculate_single_confidence_interval(numbers):
+def calculate_single_confidence_interval_normal(numbers):
     numbers = np.array(numbers)
 
     m = numbers.mean()
@@ -194,10 +209,32 @@ def calculate_single_confidence_interval(numbers):
     return (m - s * t_crit / np.sqrt(len(numbers)), m + s * t_crit / np.sqrt(len(numbers)))
 
 
+def calculate_single_confidence_interval_empirical(numbers):
+    sorted_numbers = sorted(numbers)
+    low_section = sorted_numbers[:int(0.05 * len(numbers))]
+    high_section = sorted_numbers[int(0.95 * len(numbers)):]
+    cur_interval = low_section + high_section
+    cur_interval = np.array(cur_interval)
+
+    return t.interval(0.9, len(cur_interval), cur_interval.mean(), sem(cur_interval))
+
 
 def get_random_numbers_halton(amount):
     uniform = chaospy.Uniform(0, 1)
     return list(uniform.sample(amount, rule='halton'))
+
+def q_1_d(distributions):
+    # halton function
+    sizes = [50, 200, 500]
+    res = []
+
+    for cur_size in sizes:
+        initial_random_numbers_halton = get_random_numbers_halton(cur_size)
+        distributions_numbers_halton = generate_numbers(initial_random_numbers_halton)
+        estemated_halton = estimators.estimate_all(distributions_numbers_halton, distributions)
+        res.append(estemated_halton)
+
+    return res
 
 
 if __name__ == '__main__':
@@ -239,13 +276,10 @@ if __name__ == '__main__':
 
     # 1 C 1
 
-    all_estimators_q_1_c = q_1_c(distributions_amount, distributions)
+    confidence_intervals_q_1_c = q_1_c(distributions_amount, distributions)
 
     # 1 D
 
-    # random_numbers_halton = get_random_numbers_halton(20)
-    # res_numbers_halton = generate_numbers(random_numbers_halton)
-    #
-    # all_estemated_halton = estimators.estimate_all(res_numbers_halton)
+    #relevant_estimators_halton = q_1_d(distributions)
 
     end = "end"
