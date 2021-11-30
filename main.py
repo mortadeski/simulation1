@@ -303,7 +303,7 @@ def q2_c():
         print("weibull parameters: " + str(estimators.estimate_weibull(lst)))
         print("lognormal parameters: " + str(estimators.estimate_lognormal(lst)))
 
-
+    print(RNS)
 
 
 
