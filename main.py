@@ -288,6 +288,24 @@ def q2_b():
 
     return all_probability
 
+def q2_c():
+    MC = subSystems.random_numbers_MC()
+    exp_lambda = estimators.estimate_exponential(MC)
+    MMR = subSystems.random_numbers_MMR()
+    RA = subSystems.random_numbers_RA()
+    VHF_NAV = subSystems.random_numbers_VHF_NAV()
+    DME = subSystems.random_numbers_DME()
+    RNS = subSystems.random_numbers_RNS([MC, MMR, RA, VHF_NAV, DME])
+    all_sub_system = [MC, MMR, RA, VHF_NAV, DME, RNS]
+    for lst in all_sub_system:
+        print("----")
+        print("exponential parameters: " + str(estimators.estimate_exponential(lst)))
+        print("weibull parameters: " + str(estimators.estimate_weibull(lst)))
+        print("lognormal parameters: " + str(estimators.estimate_lognormal(lst)))
+
+
+
+
 
 
 
@@ -337,7 +355,9 @@ if __name__ == '__main__':
     # relevant_estimators_halton = q_1_d(distributions)
 
     # 2 A
-    print(q_2_a())
-    print("--------------")
-    print(q2_b())
+    # print(q_2_a())
+    # print("--------------")
+    # print(q2_b())
+    q2_c()
+
     end = "end"
