@@ -279,7 +279,7 @@ def q2_b():
     for lst in all_sub_system:
         for num in lst:
             if num > 1400:
-                all_probability += 1
+                all_probability[indx] += 1
         indx += 1
     for i in range(6):
         all_probability[i] = all_probability[i]/500
@@ -336,5 +336,5 @@ if __name__ == '__main__':
 
     # 2 A
 
-    print(q_2_a())
+    print(q2_b())
     end = "end"
