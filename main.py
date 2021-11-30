@@ -246,6 +246,7 @@ def q_1_d(distributions):
 
 def q_2_a():
     MC = subSystems.random_numbers_MC()
+    #MC = generate_numbers(get_500_random_numbers_uniform(0.5, 500))[0]
     MMR = subSystems.random_numbers_MMR()
     RA = subSystems.random_numbers_RA()
     VHF_NAV = subSystems.random_numbers_VHF_NAV()
@@ -267,7 +268,8 @@ def q_2_a_helper(random_nums):
     return mean, median, top, buttom
 
 def q2_b():
-    MC = generate_numbers(get_500_random_numbers_uniform(0.5, 500))[0]
+    #MC = generate_numbers(get_500_random_numbers_uniform(0.5, 500))[0]
+    MC = subSystems.random_numbers_MC()
     MMR = subSystems.random_numbers_MMR()
     RA = subSystems.random_numbers_RA()
     VHF_NAV = subSystems.random_numbers_VHF_NAV()
@@ -335,6 +337,7 @@ if __name__ == '__main__':
     # relevant_estimators_halton = q_1_d(distributions)
 
     # 2 A
-
+    print(q_2_a())
+    print("--------------")
     print(q2_b())
     end = "end"

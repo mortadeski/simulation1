@@ -77,7 +77,7 @@ def random_numbers_DME():
 
 
 def random_numbers_RNS(all_sub_systems):
-    random_nums = all_sub_systems[0]
+    random_nums = all_sub_systems[0].copy()
     for col in range(0,len(all_sub_systems[0])):
         for row in range(1, len(all_sub_systems)):
             if all_sub_systems[row][col] < random_nums[col]:
