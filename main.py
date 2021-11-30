@@ -4,13 +4,19 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 import math
 import random
-from scipy.special import erfinv
-import write_to_excel
+
+import scipy
+from scipy.special import erfinv, gamma, factorial
 import estimators
 import matplotlib.pyplot as plt
 import chaospy
 import numpy as np
-from scipy.stats import t, sem
+from scipy.stats import t, sem, weibull_min
+import statistics
+import subSystems
+import pandas as pd
+
+
 
 
 #### A
@@ -63,6 +69,7 @@ def generate_numbers(random_numbers):
 
     # 1
     MC = convert_to_exponential(lambd=(1 / 12000), uniform_numbers=random_numbers)
+
     res_numbers.append(MC)
 
     # 2
@@ -237,6 +244,51 @@ def q_1_d(distributions):
     return res
 
 
+def q_2_a():
+    MC = subSystems.random_numbers_MC()
+    MMR = subSystems.random_numbers_MMR()
+    RA = subSystems.random_numbers_RA()
+    VHF_NAV = subSystems.random_numbers_VHF_NAV()
+    DME = subSystems.random_numbers_DME()
+    RNS = subSystems.random_numbers_RNS([MC, MMR, RA, VHF_NAV, DME])
+    all_sub_system = [MC, MMR, RA, VHF_NAV, DME, RNS]
+    for lst in all_sub_system:
+        print(q_2_a_helper(lst))
+
+
+def q_2_a_helper(random_nums):
+    # build_histogram(random_nums)
+    median = statistics.median(random_nums)
+    data = np.array(random_nums)
+    mean = data.mean()
+    top = np.percentile(data, 90)
+    buttom = np.percentile(data, 10)
+
+    return mean, median, top, buttom
+
+def q2_b():
+    MC = generate_numbers(get_500_random_numbers_uniform(0.5, 500))[0]
+    MMR = subSystems.random_numbers_MMR()
+    RA = subSystems.random_numbers_RA()
+    VHF_NAV = subSystems.random_numbers_VHF_NAV()
+    DME = subSystems.random_numbers_DME()
+    RNS = subSystems.random_numbers_RNS([MC, MMR, RA, VHF_NAV, DME])
+    all_sub_system = [MC, MMR, RA, VHF_NAV, DME, RNS]
+    all_probability = [0,0,0,0,0,0]
+    indx = 0
+    for lst in all_sub_system:
+        for num in lst:
+            if num > 1400:
+                all_probability += 1
+        indx += 1
+    for i in range(6):
+        all_probability[i] = all_probability[i]/500
+
+    return all_probability
+
+
+
+
 if __name__ == '__main__':
     # data
 
@@ -276,10 +328,13 @@ if __name__ == '__main__':
 
     # 1 C 1
 
-    confidence_intervals_q_1_c = q_1_c(distributions_amount, distributions)
+    # confidence_intervals_q_1_c = q_1_c(distributions_amount, distributions)
 
     # 1 D
 
-    #relevant_estimators_halton = q_1_d(distributions)
+    # relevant_estimators_halton = q_1_d(distributions)
 
+    # 2 A
+
+    print(q_2_a())
     end = "end"
