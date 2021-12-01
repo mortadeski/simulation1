@@ -11,7 +11,7 @@ import estimators
 import matplotlib.pyplot as plt
 import chaospy
 import numpy as np
-from scipy.stats import t, sem, weibull_min
+from scipy.stats import t, sem, weibull_min, ttest_ind, chisquare, kstest, anderson_ksamp
 import statistics
 import subSystems
 import pandas as pd
@@ -256,6 +256,8 @@ def q_2_a():
     for lst in all_sub_system:
         print(q_2_a_helper(lst))
 
+    return RNS
+
 
 def q_2_a_helper(random_nums):
     # build_histogram(random_nums)
@@ -306,7 +308,76 @@ def q2_c():
     print(RNS)
 
 
+def q_2_c_1(numbers):
 
+    # new random numbers
+    exp_new_numbers = np.random.exponential(scale=1/0.0003, size=500)
+    weibull_new_numbers = (weibull_min.rvs(0.988, size=500) * 2927.23)
+    lognormal_new_numbers = np.random.lognormal(7.381, 1.372, size=500)
+
+    # compare the numbers
+    print("chi baribua test:")
+    exp_p_value_chi, weibull_p_value_chi, lognormal_p_value_chi = chi_baribua_test(exp_new_numbers, weibull_new_numbers, lognormal_new_numbers, numbers)
+    print("chi baribua p value exponential: " + str(exp_p_value_chi))
+    print("chi baribua p value weibull: " + str(weibull_p_value_chi))
+    print("chi baribua p value lognormal: " + str(lognormal_p_value_chi))
+
+    print("kolmogorov smirnov test:")
+    exp_p_value_kolmogorov, weibull_p_value_kolmogorov, lognormal_p_value_kolmogorov = kolmogorov_smirnov_test(exp_new_numbers, weibull_new_numbers,
+                                                                                   lognormal_new_numbers, numbers)
+    print("kolmogorov smirnov p value exponential: " + str(exp_p_value_kolmogorov))
+    print("kolmogorov smirnov p value weibull: " + str(weibull_p_value_kolmogorov))
+    print("kolmogorov smirnov p value lognormal: " + str(lognormal_p_value_kolmogorov))
+
+    print("anderson darling test:")
+    exp_p_value_anderson, weibull_p_value_anderson, lognormal_p_value_anderson = anderson_darling_test(
+        exp_new_numbers, weibull_new_numbers, lognormal_new_numbers, numbers)
+    print("anderson darling p value exponential: " + str(exp_p_value_anderson))
+    print("anderson darling p value weibull: " + str(weibull_p_value_anderson))
+    print("anderson darling p value lognormal: " + str(lognormal_p_value_anderson))
+
+
+
+def chi_baribua_test(new_numbers1, new_numbers2, new_numbers3, old_numbers):
+    res1 = chisquare([new_numbers1, old_numbers])[1]
+    res2 = chisquare([new_numbers2, old_numbers])[1]
+    res3 = chisquare([new_numbers3, old_numbers])[1]
+
+    return res1, res2, res3
+
+def kolmogorov_smirnov_test(new_numbers1, new_numbers2, new_numbers3, old_numbers):
+    res1 = kstest(new_numbers1, old_numbers)[1]
+    res2 = kstest(new_numbers2, old_numbers)[1]
+    res3 = kstest(new_numbers3, old_numbers)[1]
+
+    return res1, res2, res3
+
+def anderson_darling_test(new_numbers1, new_numbers2, new_numbers3, old_numbers):
+
+    p1 = anderson_helper(new_numbers1, old_numbers)
+    p2 = anderson_helper(new_numbers2, old_numbers)
+    p3 = anderson_helper(new_numbers3, old_numbers)
+
+    return p1, p2, p3
+
+def anderson_helper(new_numbers, old_numbers):
+    numbers_amount = len(old_numbers)
+    AD, crit, sig = anderson_ksamp([new_numbers, old_numbers])
+    # print("Significance Levels:", sig)
+    # print("Critical Values:", crit)
+    # print("\nA^2 = ", AD)
+    AD = AD * (1 + (.75 / numbers_amount) + 2.25 / (numbers_amount ** 2))
+    #print("Adjusted A^2 = ", AD)
+    if AD >= .6:
+        p = math.exp(1.2937 - 5.709 * AD - .0186 * (AD ** 2))
+    elif AD >= .34:
+        p = math.exp(.9177 - 4.279 * AD - 1.38 * (AD ** 2))
+    elif AD > .2:
+        p = 1 - math.exp(-8.318 + 42.796 * AD - 59.938 * (AD ** 2))
+    else:
+        p = 1 - math.exp(-13.436 + 101.14 * AD - 223.73 * (AD ** 2))
+
+    return p
 
 
 if __name__ == '__main__':
@@ -358,6 +429,7 @@ if __name__ == '__main__':
     # print(q_2_a())
     # print("--------------")
     # print(q2_b())
-    q2_c()
+    RNS_numbers = q_2_a()
+    q_2_c_1(RNS_numbers)
 
     end = "end"
